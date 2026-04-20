@@ -1,0 +1,219 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Better Auth Models
+model User {
+  id            String    @id
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  name          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  planId        String?
+  plan          Plan?     @relation(fields: [planId], references: [id])
+  maxScreens    Int       @default(1)
+  trialEndsAt   DateTime?           // Data de expiração do teste grátis (null = sem trial ativo)
+  trialUsed     Boolean   @default(false) // Impede reuso do trial pelo mesmo email
+  avatarIcon    String    @default("user")  // Ícone do avatar (nome do ícone Lucide)
+  avatarColor   String    @default("red")   // Preset de cor do avatar
+  watchlist     Watchlist[]
+  watchHistory  WatchHistory[]
+  sessions      Session[]
+  accounts      Account[]
+  preferences   UserPreferences?
+  ownedFamily   Family?          @relation("FamilyOwner")
+  familyMember  FamilyMember[]
+}
+
+model Session {
+  id             String   @id
+  expiresAt      DateTime
+  token          String   @unique
+  ipAddress      String?
+  userAgent      String?
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Geolocalização (cache de IP lookup)
+  geoCity        String?
+  geoCountry     String?
+  geoCountryCode String?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([userId]) // Better Auth: lookup sessões por usuário
+}
+
+model Account {
+  id                String  @id
+  accountId         String
+  providerId        String
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken       String?
+  refreshToken      String?
+  idToken           String?
+  expiresAt         DateTime?
+  password          String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId]) // Better Auth: lookup contas por usuário
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier]) // Better Auth: lookup verificações (OTP/email)
+}
+
+/// Tabela de rate limiting do Better Auth (storage: "database")
+/// Persiste contadores entre cold starts em ambientes serverless (Vercel)
+model RateLimit {
+  id          String @id @default(cuid())
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("rateLimit")
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String
+  screens     Int
+  priceMonthly Float
+  priceYearly Float
+  active      Boolean  @default(true)
+  users       User[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Watchlist {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tmdbId    Int
+  mediaType String   // "movie" or "tv"
+  addedAt   DateTime @default(now())
+
+  @@unique([userId, tmdbId, mediaType])
+}
+
+model WatchHistory {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tmdbId        Int
+  mediaType     String   // "movie" or "tv"
+  
+  // Para séries: temporada e episódio específicos
+  // Para filmes: ambos = 0 (default)
+  seasonNumber  Int      @default(0)
+  episodeNumber Int      @default(0)
+  
+  progress      Float    @default(0) // Progress percentage (0-100)
+  lastWatchedAt DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  // Constraint única: 1 registro por filme OU 1 registro por episódio de série
+  @@unique([userId, tmdbId, mediaType, seasonNumber, episodeNumber])
+  
+  // Índices para performance
+  @@index([userId, lastWatchedAt]) // Buscar histórico recente do usuário
+  @@index([userId, tmdbId, mediaType]) // Buscar todos os episódios de uma série
+}
+
+// ─── Settings & Preferences ────────────────────────────────────────────────
+
+model UserPreferences {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Idioma
+  language        String   @default("pt-BR") // "pt-BR", "en", "es"
+
+  // Autoplay
+  autoplayNext    Boolean  @default(true)    // Próximo episódio automaticamente
+  autoplayTrailer Boolean  @default(true)    // Trailers na página de detalhes
+
+  // Legendas
+  subtitleEnabled Boolean  @default(false)
+  subtitleLang    String   @default("pt-BR")
+  subtitleSize    String   @default("medium") // "small", "medium", "large", "xlarge"
+  subtitleColor   String   @default("#FFFFFF")
+  subtitleBg      String   @default("transparent")
+  subtitleFont    String   @default("default") // "default", "serif", "mono", "casual"
+
+  // Notificações Email
+  emailNewReleases     Boolean @default(true)
+  emailRecommendations Boolean @default(true)
+  emailAccountAlerts   Boolean @default(true)
+  emailMarketing       Boolean @default(false)
+
+  // Notificações Push
+  pushNewReleases      Boolean @default(true)
+  pushRecommendations  Boolean @default(false)
+  pushAccountAlerts    Boolean @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// ─── Family System ─────────────────────────────────────────────────────────
+
+model Family {
+  id          String         @id @default(cuid())
+  ownerId     String         @unique
+  owner       User           @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  name        String         @default("Minha Família")
+  maxMembers  Int            @default(1)
+  members     FamilyMember[]
+  invites     FamilyInvite[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model FamilyMember {
+  id        String   @id @default(cuid())
+  familyId  String
+  family    Family   @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  joinedAt  DateTime @default(now())
+
+  @@unique([familyId, userId])
+  @@index([userId])
+}
+
+model FamilyInvite {
+  id        String    @id @default(cuid())
+  familyId  String
+  family    Family    @relation(fields: [familyId], references: [id], onDelete: Cascade)
+  token     String    @unique @default(cuid())
+  email     String?
+  status    String    @default("pending") // "pending", "accepted", "expired", "revoked"
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+  usedBy    String?
+  usedAt    DateTime?
+
+  @@index([token])
+  @@index([familyId])
+}

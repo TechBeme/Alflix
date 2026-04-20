@@ -1,0 +1,21 @@
+WEBVTT
+
+00:00:00.000 --> 00:00:05.000 line:90%
+Bem-vindo ao AllFlix!
+Este é um exemplo de legenda em Português.
+
+00:00:05.000 --> 00:00:10.000 line:90%
+As legendas são sincronizadas
+perfeitamente com o vídeo.
+
+00:00:10.000 --> 00:00:15.000 line:90%
+Você pode mudar o idioma
+a qualquer momento nos controles.
+
+00:00:15.000 --> 00:00:20.000 line:90%
+Esta é uma demonstração técnica
+do sistema de legendas.
+
+00:00:20.000 --> 00:00:25.000 line:90%
+Em produção, você usará
+legendas reais de sua biblioteca.

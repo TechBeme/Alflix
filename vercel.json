@@ -1,0 +1,16 @@
+{
+    "crons": [
+        {
+            "path": "/api/cron/expire-trials",
+            "schedule": "0 0 * * *"
+        },
+        {
+            "path": "/api/cron/expire-invites",
+            "schedule": "0 0 * * *"
+        },
+        {
+            "path": "/api/cron/warm-cache",
+            "schedule": "0 6 * * *"
+        }
+    ]
+}

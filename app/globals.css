@@ -1,0 +1,323 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Cores principais */
+  --primary: #d0212a;
+  --primary-hover: #b01d24;
+  --primary-light: #ff4444;
+  --primary-dark: #8b0000;
+  --danger: #DC2626;
+
+  /* Backgrounds */
+  --background: #000000;
+  --foreground: #ffffff;
+  --bg-darkest: #060606;
+  --bg-darker3: #080808;
+  --bg-darker2: #0a0a0a;
+  --bg-darker: #121212;
+  --bg-dark0: #101010;
+  --bg-dark1: #0c0c0c;
+  --bg-dark2: #0e0e0e;
+  --bg-dark3: #111111;
+  --bg-dark4: #141414;
+  --bg-dark5: #151515;
+  --bg-elevated: #161616;
+  --bg-elevated2: #181818;
+  --bg-card: #1a1a1a;
+  --bg-card2: #1c1c1c;
+  --bg-card3: #1e1e1e;
+  --bg-muted: #2a2a2a;
+  --bg-gray: #3a3a3a;
+
+  /* Borders */
+  --border-default: #2a2a2a;
+  --border-light: rgba(255, 255, 255, 0.06);
+  --border-lighter: rgba(255, 255, 255, 0.08);
+
+  /* Text colors */
+  --text-white: #ffffff;
+  --text-gray: #9ca3af;
+  --text-gray-200: #e5e7eb;
+  --text-gray-300: #d1d5db;
+  --text-gray-light: #e0e0e0;
+  --text-gray-dark: #6b7280;
+
+  /* Gradientes legados (manter para compatibilidade) */
+  --surface-gradient: linear-gradient(to bottom, var(--bg-elevated), var(--bg-darker), var(--bg-dark2));
+  --section-a: linear-gradient(to bottom, var(--bg-dark2), var(--bg-darker), var(--bg-dark2));
+  --section-b: linear-gradient(to bottom, var(--bg-darker), var(--bg-dark4), var(--bg-darker));
+  --divider: linear-gradient(to right, transparent, var(--border-light), transparent);
+  --red-glow: 0 0 60px rgba(208, 33, 42, 0.15);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom Animations */
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+/* Hover effect for red links */
+.hover-red:hover {
+  color: var(--primary) !important;
+}
+
+@keyframes bounce-gentle {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  30% {
+    transform: translateY(12px);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Mobile Menu - Transition-based (supports enter + exit animations) */
+.mobile-menu-overlay {
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.mobile-menu-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.mobile-menu-panel {
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0, 1);
+  transform: translateX(100%);
+  will-change: transform;
+}
+
+.mobile-menu-panel.open {
+  transform: translateX(0);
+}
+
+/* Staggered item animations */
+.mobile-menu-panel.open .menu-item {
+  animation: menuItemIn 0.35s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+@keyframes menuItemIn {
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out both;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s ease-out both;
+}
+
+.animate-scroll {
+  animation: scroll 2s ease-in-out infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.3s ease-out forwards;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+.animation-delay-800 {
+  animation-delay: 0.8s;
+}
+
+/* Text Gradient Backgrounds */
+.bg-gradient-text-white {
+  background: linear-gradient(to right, var(--foreground), var(--text-gray-light));
+}
+
+.bg-gradient-text-gray {
+  background: linear-gradient(to right, var(--text-gray), var(--text-gray-dark));
+}
+
+.bg-gradient-text-primary {
+  background: linear-gradient(to right, var(--primary), var(--primary-light));
+}
+
+/* Premium Surface Utilities */
+.surface-gradient {
+  background: var(--surface-gradient);
+}
+
+.section-gradient-a {
+  background: var(--section-a);
+}
+
+.section-gradient-b {
+  background: var(--section-b);
+}
+
+.premium-divider {
+  height: 1px;
+  background: var(--divider);
+}
+
+/* Premium card surface with subtle inner glow */
+.card-surface {
+  background: linear-gradient(145deg, var(--bg-elevated), var(--bg-darker));
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.card-surface:hover {
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Focus ring for interactive elements */
+.focus-ring:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-darker), 0 0 0 4px var(--primary);
+}
+
+/* Subtle red accent glow */
+.glow-red {
+  box-shadow: var(--red-glow);
+}
+
+/* Section red accent decoration */
+.section-accent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(208, 33, 42, 0.4), transparent);
+}
+
+/* Estilo das legendas Netflix (::cue personalizado) */
+.video-player-wrapper video::cue {
+  color: var(--foreground);
+  font-size: clamp(18px, 2.5vw, 45px);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: bolder;
+  line-height: normal;
+  text-align: center;
+  text-shadow: var(--background) 0px 0px 7px;
+  background: transparent;
+}
+
+/* Suporte para navegadores que aceitam mais propriedades */
+@supports (padding: 1px) {
+  .video-player-wrapper video::cue {
+    padding: 0.2em 0.5em;
+  }
+}
+
+/* Customização do Sonner Toaster */
+[data-sonner-toaster] [data-close-button] {
+  left: auto !important;
+  right: 8px !important;
+  top: 8px !important;
+  transform: none !important;
+}
+
+[data-sonner-toast] {
+  padding-right: 36px !important;
+}
+
+[data-sonner-toaster] [data-close-button]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
